@@ -4,27 +4,27 @@ import { AddSheet } from "../add/AddSheet";
 
 const navItems = [
   {
-    label: "Accueil",
+    
     path: "/",
     icon: "🏠",
   },
   {
-    label: "Plan",
+    
     path: "/plan",
     icon: "📅",
   },
   {
-    label: "Chrono",
+    
     path: "/chrono",
     icon: "⏱️",
   },
   {
-    label: "Routines",
+    
     path: "/routines",
     icon: "🔄",
   },
   {
-    label: "Refuge",
+    
     path: "/refuge",
     icon: "🏝️",
   },
@@ -47,7 +47,6 @@ export function BottomNav() {
             }
           >
             <span>{item.icon}</span>
-            <span>{item.label}</span>
           </NavLink>
         ))}
 
