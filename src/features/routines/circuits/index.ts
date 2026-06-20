@@ -22,6 +22,17 @@ import { deepClean } from "./daily/deepClean";
 import { hardTransition } from "./tnd/hardTransition";
 import { motivationBoost } from "./tnd/motivationBoost";
 import { energyReset } from "./tnd/energyReset";
+import { emotionalFirstAid } from "./tnd/emotionalFirstAid";
+import { muscleRelease } from "./tnd/muscleRelease";
+import { redMarker } from "./tnd/redMarker";
+import { objectObservation } from "./tnd/objectObservation";
+import { coldObject } from "./tnd/coldObject";
+import { coldWater } from "./tnd/coldWater";
+import { delayChecking } from "./tnd/delayChecking";
+import { tolerateUncertainty } from "./tnd/tolerateUncertainty";
+import { thanksBrain } from "./tnd/thanksBrain";
+import { urgeWave } from "./tnd/urgeWave";
+import { stopRumination } from "./tnd/stopRumination";
 
 export const circuits = [
   returnToCalm,
@@ -48,4 +59,18 @@ deepClean,
 hardTransition,
 motivationBoost,
 energyReset,
+emotionalFirstAid,
+
+muscleRelease,
+  redMarker,
+  objectObservation,
+  coldObject,
+  coldWater,
+
+  delayChecking,
+  tolerateUncertainty,
+  thanksBrain,
+  urgeWave,
+
+  stopRumination,
 ];

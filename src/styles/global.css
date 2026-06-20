@@ -1588,3 +1588,147 @@ body {
   background: #f3f4f6;
   color: #374151;
 }
+
+.plan-task {
+  cursor: grab;
+}
+
+.plan-task:active {
+  cursor: grabbing;
+}
+
+.plan-slot:hover {
+  background: rgba(124, 92, 255, 0.08);
+}
+
+.plan-priority-dropzone:hover {
+  outline: 2px dashed var(--primary);
+}
+
+.plan-task {
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.plan-task:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.plan-task > button:first-of-type {
+  min-width: 0;
+}
+
+.plan-task-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.plan-action-button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+
+  font-weight: 900;
+}
+
+.plan-action-button--danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.plan-slot {
+  cursor: pointer;
+  transition: background 0.15s ease, outline 0.15s ease;
+}
+
+.plan-slot:hover {
+  background: rgba(124, 92, 255, 0.08);
+  outline: 2px dashed var(--primary);
+  outline-offset: 2px;
+}
+
+.plan-priority-dropzone {
+  border-radius: 18px;
+  transition: outline 0.15s ease;
+}
+
+.plan-priority-dropzone:hover {
+  outline: 2px dashed var(--primary);
+  outline-offset: 3px;
+}
+
+.plan-slot-item {
+  cursor: grab;
+}
+
+.plan-slot-item:active {
+  cursor: grabbing;
+}
+
+.plan-slot-item--travel {
+  cursor: default;
+}
+
+.breathing-orb {
+  width: 260px;
+  height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform 4s cubic-bezier(
+    0.4,
+    0,
+    0.2,
+    1
+  );
+}
+
+.breathing-orb--in {
+  transform: scale(1.25);
+}
+
+.breathing-orb--out {
+  transform: scale(0.8);
+}
+
+.kleo-breathing {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+
+  user-select: none;
+  pointer-events: none;
+}
+
+.emergency-button {
+  width: 100%;
+
+  padding: 18px;
+
+  border: 0;
+  border-radius: 20px;
+
+  background: linear-gradient(
+    135deg,
+    #ef4444,
+    #f97316
+  );
+
+  color: white;
+
+  font-size: 1rem;
+  font-weight: 700;
+}

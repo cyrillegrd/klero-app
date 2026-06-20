@@ -16,6 +16,7 @@ import { ForestPage } from "../features/refuge/ForestPage";
 import { CategoryChartPage } from "../features/suivi/CategoryChartPage";
 import { HistoryPage } from "../features/routines/HistoryPage";
 import { ShoppingListPage } from "../features/routines/ShoppingListPage";
+import { CommunicationPage } from "../features/communication/CommunicationPage";
 
 
 export const router = createBrowserRouter([
@@ -53,7 +54,11 @@ export const router = createBrowserRouter([
 {
   path: "chrono",
   element: <ChronoPage />,
-}
+},
+{
+  path: "communication",
+  element: <CommunicationPage />,
+},
     ],
   },
 ]);

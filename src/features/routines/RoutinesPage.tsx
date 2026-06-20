@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import { circuits } from "./circuits";
@@ -12,38 +11,114 @@ import {
 import type { Circuit } from "./types";
 
 export function RoutinesPage() {
+  const navigate = useNavigate();
+
   const [selectedCircuit, setSelectedCircuit] =
     useState<Circuit | null>(null);
 
-    const [selectedEnergy, setSelectedEnergy] =
-  useState<"low" | "medium" | "high" | null>(
-    null
-  );
+    const [emergencyMode, setEmergencyMode] =
+  useState(false);
+
+  const [selectedEnergy, setSelectedEnergy] =
+    useState<"low" | "medium" | "high" | null>(null);
 
   const pausedSession = selectedCircuit
     ? getPausedSession(selectedCircuit.id)
     : undefined;
 
+  const emotionalFirstAidCircuit = circuits.find(
+    (circuit) => circuit.id === "emotional-first-aid"
+  );
+
+  const pausedCircuits = circuits.filter((circuit) =>
+    getPausedSession(circuit.id)
+  );
+
     const visibleCircuits = selectedEnergy
   ? circuits.filter(
       (circuit) =>
-        circuit.energy === selectedEnergy
+        circuit.energy === selectedEnergy &&
+        ![
+          "muscle-release",
+          "red-marker",
+          "object-observation",
+          "cold-object",
+          "cold-water",
+        ].includes(circuit.id)
     )
   : [];
 
-  const pausedCircuits = circuits.filter(
-  (circuit) => getPausedSession(circuit.id)
-);
-
   const tndCircuits = visibleCircuits.filter(
-  (circuit) => circuit.category === "tnd"
+    (circuit) => circuit.category === "tnd"
+  );
+
+  
+
+  const dailyCircuits = visibleCircuits.filter(
+    (circuit) => circuit.category === "daily"
+  );
+
+  
+
+  const emergencyCircuits = circuits.filter((circuit) =>
+  [
+    "muscle-release",
+    "red-marker",
+    "object-observation",
+    "cold-object",
+    "cold-water",
+    "delay-checking",
+    "tolerate-uncertainty",
+    "thanks-brain",
+    "urge-wave",
+    "stop-rumination",
+  ].includes(circuit.id)
 );
 
-const dailyCircuits = visibleCircuits.filter(
-  (circuit) => circuit.category === "daily"
-);
+  function startCircuit(circuit: Circuit) {
+    const paused = getPausedSession(circuit.id);
 
-const navigate = useNavigate();
+    if (!paused) {
+      saveRoutineSession({
+        id: crypto.randomUUID(),
+        circuitId: circuit.id,
+        startedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        currentStepIndex: 0,
+        completedSteps: [],
+        responses: {},
+        status: "active",
+      });
+    }
+
+    setSelectedCircuit(circuit);
+  }
+
+  function getEnergyLabel(circuit: Circuit) {
+    if (circuit.energy === "low") {
+      return "🟥 Faible énergie";
+    }
+
+    if (circuit.energy === "medium") {
+      return "🟨 Énergie moyenne";
+    }
+
+    return "🟩 Bonne énergie";
+  }
+
+  function getCircuitSubtitle(circuit: Circuit) {
+    const paused = getPausedSession(circuit.id);
+
+    if (paused) {
+      return `Reprendre à l'étape ${
+        paused.currentStepIndex + 1
+      }`;
+    }
+
+    return `⏱ ${circuit.duration} min • ${getEnergyLabel(
+      circuit
+    )}`;
+  }
 
   if (selectedCircuit) {
     return (
@@ -51,217 +126,185 @@ const navigate = useNavigate();
         circuit={selectedCircuit}
         initialSession={pausedSession}
         onExit={() => setSelectedCircuit(null)}
-        onComplete={() => {
-          setSelectedCircuit(null);
-        }}
+        onComplete={() => setSelectedCircuit(null)}
       />
     );
   }
 
-  
+if (emergencyMode) {
+  return (
+    <div className="suivi-page">
+      <header className="page-header">
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => setEmergencyMode(false)}
+        >
+          ← Retour
+        </button>
+
+        <h1>
+          🛡️ Premiers secours émotionnels
+        </h1>
+
+        <p>
+          Choisis l'aide qui te semble la plus
+          accessible maintenant.
+        </p>
+      </header>
+
+      {emergencyCircuits.map((circuit) => (
+        <button
+          key={circuit.id}
+          type="button"
+          className="suivi-category"
+          onClick={() => startCircuit(circuit)}
+        >
+          <span>{circuit.title}</span>
+
+          <small>
+            {circuit.description}
+          </small>
+        </button>
+      ))}
+    </div>
+  );
+}
 
   return (
     <div className="suivi-page">
       <header className="page-header">
         <h1>Routines</h1>
 
-        {pausedCircuits.length > 0 && (
-  <>
-    <h2 className="routine-section-title">
-      ▶ À reprendre
-    </h2>
-
-    {pausedCircuits.map((circuit) => {
-      const paused = getPausedSession(circuit.id);
-
-      return (
         <button
-          key={circuit.id}
           type="button"
-          className="suivi-category suivi-category--active"
-          onClick={() => setSelectedCircuit(circuit)}
+          className="history-button"
+          onClick={() => navigate("/routines/history")}
         >
-          <span>{circuit.title}</span>
-          <small>
-  {paused
-    ? `Reprendre à l'étape ${
-        paused.currentStepIndex + 1
-      }`
-    : `⏱ ${circuit.duration} min • ${
-        circuit.energy === "low"
-          ? "🟥 Faible énergie"
-          : circuit.energy === "medium"
-          ? "🟨 Énergie moyenne"
-          : "🟩 Bonne énergie"
-      }`}
-</small>
+          📜 Historique
         </button>
-      );
-    })}
-  </>
-)}
 
-<button
-  type="button"
-  className="history-button"
-  onClick={() => navigate("/routines/history")}
->
-  📜 Historique
-</button>
         <p>Choisis un circuit guidé.</p>
       </header>
 
+      {emotionalFirstAidCircuit && (
+        <button
+  type="button"
+  className="emergency-button"
+  onClick={() => setEmergencyMode(true)}
+>
+  🛡️ J'ai besoin d'aide maintenant
+</button>
+
+
+      )}
+
+      {pausedCircuits.length > 0 && (
+        <>
+          <h2 className="routine-section-title">
+            ▶ À reprendre
+          </h2>
+
+          {pausedCircuits.map((circuit) => (
+            <button
+              key={circuit.id}
+              type="button"
+              className="suivi-category suivi-category--active"
+              onClick={() => startCircuit(circuit)}
+            >
+              <span>{circuit.title}</span>
+              <small>{getCircuitSubtitle(circuit)}</small>
+            </button>
+          ))}
+        </>
+      )}
+
       <div className="energy-selector">
-<button
-  type="button"
-  className={
-    selectedEnergy === "low"
-      ? "energy-button energy-button--active"
-      : "energy-button"
-  }
-  onClick={() => setSelectedEnergy("low")}
->
-  <span>🟥</span>
-  <span>Faible</span>
-</button>
+        <button
+          type="button"
+          className={
+            selectedEnergy === "low"
+              ? "energy-button energy-button--active"
+              : "energy-button"
+          }
+          onClick={() => setSelectedEnergy("low")}
+        >
+          <span>🟥</span>
+          <span>Faible</span>
+        </button>
 
-<button
-  type="button"
-  className={
-    selectedEnergy === "medium"
-      ? "energy-button energy-button--active"
-      : "energy-button"
-  }
-  onClick={() => setSelectedEnergy("medium")}
->
-  <span>🟨</span>
-  <span>Moyenne</span>
-</button>
+        <button
+          type="button"
+          className={
+            selectedEnergy === "medium"
+              ? "energy-button energy-button--active"
+              : "energy-button"
+          }
+          onClick={() => setSelectedEnergy("medium")}
+        >
+          <span>🟨</span>
+          <span>Moyenne</span>
+        </button>
 
-<button
-  type="button"
-  className={
-    selectedEnergy === "high"
-      ? "energy-button energy-button--active"
-      : "energy-button"
-  }
-  onClick={() => setSelectedEnergy("high")}
->
-  <span>🟩</span>
-  <span>Bonne</span>
-</button>
+        <button
+          type="button"
+          className={
+            selectedEnergy === "high"
+              ? "energy-button energy-button--active"
+              : "energy-button"
+          }
+          onClick={() => setSelectedEnergy("high")}
+        >
+          <span>🟩</span>
+          <span>Bonne</span>
+        </button>
+      </div>
 
-  {!selectedEnergy && (
-  <div className="card">
-    <p>
-      Comment te sens-tu aujourd'hui ?
-    </p>
-  </div>
-)}
-</div>
+      {!selectedEnergy && (
+        <div className="card">
+          <p>Comment te sens-tu aujourd'hui ?</p>
+        </div>
+      )}
 
       {tndCircuits.length > 0 && (
-  <>
-    <h2 className="routine-section-title">
-      🧠 Soutien TND
-    </h2>
+        <>
+          <h2 className="routine-section-title">
+            🧠 Soutien TND
+          </h2>
 
-    {tndCircuits.map((circuit) => {
-      const paused = getPausedSession(circuit.id);
+          {tndCircuits.map((circuit) => (
+            <button
+              key={circuit.id}
+              type="button"
+              className="suivi-category"
+              onClick={() => startCircuit(circuit)}
+            >
+              <span>{circuit.title}</span>
+              <small>{getCircuitSubtitle(circuit)}</small>
+            </button>
+          ))}
+        </>
+      )}
 
-      return (
-        <button
-          key={circuit.id}
-          type="button"
-          className="suivi-category"
-          onClick={() => {
-            if (!paused) {
-              saveRoutineSession({
-                id: crypto.randomUUID(),
-                circuitId: circuit.id,
-                startedAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                currentStepIndex: 0,
-                completedSteps: [],
-                responses: {},
-                status: "active",
-              });
-            }
+      {dailyCircuits.length > 0 && (
+        <>
+          <h2 className="routine-section-title">
+            🏠 Vie quotidienne
+          </h2>
 
-            setSelectedCircuit(circuit);
-          }}
-        >
-          <span>{circuit.title}</span>
-          <small>
-  {paused
-    ? `Reprendre à l'étape ${
-        paused.currentStepIndex + 1
-      }`
-    : `⏱ ${circuit.duration} min • ${
-        circuit.energy === "low"
-          ? "🟥 Faible énergie"
-          : circuit.energy === "medium"
-          ? "🟨 Énergie moyenne"
-          : "🟩 Bonne énergie"
-      }`}
-</small>
-        </button>
-      );
-    })}
-  </>
-)}
-
-{dailyCircuits.length > 0 && (
-  <>
-    <h2 className="routine-section-title">
-      🏠 Vie quotidienne
-    </h2>
-
-    {dailyCircuits.map((circuit) => {
-      const paused = getPausedSession(circuit.id);
-
-      return (
-        <button
-          key={circuit.id}
-          type="button"
-          className="suivi-category"
-          onClick={() => {
-            if (!paused) {
-              saveRoutineSession({
-                id: crypto.randomUUID(),
-                circuitId: circuit.id,
-                startedAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                currentStepIndex: 0,
-                completedSteps: [],
-                responses: {},
-                status: "active",
-              });
-            }
-
-            setSelectedCircuit(circuit);
-          }}
-        >
-          <span>{circuit.title}</span>
-          <small>
-  {paused
-    ? `Reprendre à l'étape ${
-        paused.currentStepIndex + 1
-      }`
-    : `⏱ ${circuit.duration} min • ${
-        circuit.energy === "low"
-          ? "🟥 Faible énergie"
-          : circuit.energy === "medium"
-          ? "🟨 Énergie moyenne"
-          : "🟩 Bonne énergie"
-      }`}
-</small>
-        </button>
-      );
-    })}
-  </>
-)}
+          {dailyCircuits.map((circuit) => (
+            <button
+              key={circuit.id}
+              type="button"
+              className="suivi-category"
+              onClick={() => startCircuit(circuit)}
+            >
+              <span>{circuit.title}</span>
+              <small>{getCircuitSubtitle(circuit)}</small>
+            </button>
+          ))}
+        </>
+      )}
     </div>
-    
   );
 }

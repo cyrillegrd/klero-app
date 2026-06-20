@@ -1,4 +1,9 @@
+import kleoBreathing from "../../assets/bronto/kleo_breathing.png";
+import kleoHappy from "../../assets/bronto/bronto_happy.png";
+import kleoCalm from "../../assets/bronto/bronto_calm.png";
+
 import { useEffect, useState } from "react";
+
 
 const timers = [
   {
@@ -38,6 +43,29 @@ export function ChronoPage() {
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
+
+  const [breathPhase, setBreathPhase] =
+  useState<"inspire" | "expire">("inspire");
+
+const [breathCount, setBreathCount] = useState(4);
+
+  useEffect(() => {
+  if (!running || selectedTimer?.id !== "breathing") return;
+
+  const interval = window.setInterval(() => {
+    setBreathCount((count) => {
+      if (count > 1) return count - 1;
+
+      setBreathPhase((phase) =>
+        phase === "inspire" ? "expire" : "inspire"
+      );
+
+      return 4;
+    });
+  }, 1000);
+
+  return () => window.clearInterval(interval);
+}, [running, selectedTimer]);
 
   useEffect(() => {
     if (!selectedTimer) return;
@@ -89,18 +117,36 @@ export function ChronoPage() {
         <h1>{selectedTimer.title}</h1>
 
         <div
-          className={
-            running
-              ? "breathing-orb breathing-orb--running"
-              : "breathing-orb"
-          }
-        >
-          🦕
-        </div>
+  className={
+    selectedTimer.id === "breathing" && running
+      ? breathPhase === "inspire"
+        ? "breathing-orb breathing-orb--in"
+        : "breathing-orb breathing-orb--out"
+      : running
+      ? "breathing-orb breathing-orb--running"
+      : "breathing-orb"
+  }
+>
+  <img
+  src={
+    finished
+      ? kleoHappy
+      : breathPhase === "inspire"
+      ? kleoBreathing
+      : kleoCalm
+  }
+  alt="Kléo"
+  className="kleo_breathing"
+/>
+</div>
 
         <p className="breathing-text">
-          {selectedTimer.label}
-        </p>
+  {selectedTimer.id === "breathing"
+    ? breathPhase === "inspire"
+      ? `Inspire ${breathCount}`
+      : `Expire ${breathCount}`
+    : selectedTimer.label}
+</p>
 
         <strong className="chrono-time">
           {Math.floor(remaining / 60)}:
