@@ -104,7 +104,7 @@ body {
 
 .home-page {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 
 .hero-card,
@@ -200,7 +200,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 4px;
 }
 
 .bronto-card__content {
@@ -1713,22 +1713,188 @@ body {
   pointer-events: none;
 }
 
-.emergency-button {
-  width: 100%;
+.communication-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 95px;
 
-  padding: 18px;
+  width: 64px;
+  height: 64px;
 
-  border: 0;
-  border-radius: 20px;
+  border: none;
+  border-radius: 50%;
 
-  background: linear-gradient(
-    135deg,
-    #ef4444,
-    #f97316
-  );
-
+  background: #7c5cff;
   color: white;
 
-  font-size: 1rem;
+  font-size: 1.8rem;
+
+  z-index: 999;
+}
+
+.home-agenda-card {
+  padding: 18px;
+  border-radius: 26px;
+  background: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.home-agenda-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-agenda-card__header h2 {
+  margin: 0;
+}
+
+.home-agenda-card__header button {
+  border: 0;
+  background: var(--primary-light);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+}
+
+.home-agenda-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.home-agenda-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 10px;
+  align-items: center;
+
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 18px;
+
+  background: #f8fafc;
+  text-align: left;
+  font-weight: 800;
+}
+
+.home-agenda-empty {
+  margin-bottom: 0;
+  color: #6b7280;
+}
+
+.home-communication-card {
+  width: 100%;
+  border: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  text-align: left;
+}
+
+.home-communication-card > span {
+  font-size: 2.2rem;
+}
+
+.home-communication-card h2 {
+  margin: 0 0 4px;
+}
+
+.home-communication-card p {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.kleo-card {
+  background:
+    linear-gradient(
+      135deg,
+      #ede9fe,
+      #f5f3ff
+    );
+
+  border: none;
+}
+
+.kleo-card__header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+
+  margin-bottom: 12px;
+}
+
+.kleo-card__avatar {
+  font-size: 3rem;
+}
+
+.kleo-card h2 {
+  margin: 0;
+}
+
+.kleo-card p {
+  margin: 6px 0;
+}
+
+.bronto-next-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  margin: 8px 0 14px;
+}
+
+.bronto-next-item strong {
+  font-size: 1.05rem;
+}
+
+.bronto-next-item small {
+  color: #6b7280;
   font-weight: 700;
+}
+
+.goal-progress {
+  height: 14px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e5e7eb;
+
+  margin-top: 10px;
+}
+
+.goal-progress__fill {
+  height: 100%;
+
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    #7c5cff,
+    #9f8cff
+  );
+
+  transition: width 0.4s ease;
+}
+
+.sobriety-card {
+  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+}
+
+.sobriety-days {
+  margin: 8px 0;
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: #047857;
+}
+
+.sobriety-days span {
+  font-size: 1rem;
+  color: #065f46;
 }
