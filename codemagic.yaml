@@ -2,6 +2,9 @@ workflows:
   ios-workflow:
     name: Klero iOS
 
+    integrations:
+      app_store_connect: Codemagic
+
     environment:
       xcode: latest
       node: latest
@@ -21,6 +24,5 @@ workflows:
 
     publishing:
       app_store_connect:
-        auth:
-          api_key: Codemagic
+        auth: integration
         submit_to_testflight: true
