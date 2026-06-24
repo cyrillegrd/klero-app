@@ -7,8 +7,13 @@ import { prairieStages } from "./prairieStages";
 import { islandMap } from "./islandMap";
 import { refugeSteps } from "./refugeChapters";
 
+import { saveCloudRefuge } from "./refugeCloud";
+
+
 export function RefugePage() {
   const navigate = useNavigate();
+
+ 
 
   const [openSheet, setOpenSheet] = useState<
     "bronto" | "badges" | "island" | null
@@ -27,6 +32,8 @@ export function RefugePage() {
     (step) => step.id === currentStep?.id
   );
 
+  
+
   const nextStep = refugeSteps.find(
     (step) =>
       step.requiredFiches > stats.refugePoints
@@ -43,26 +50,34 @@ export function RefugePage() {
     prairieStages.length - 1
   );
 
+  const currentImageStep = refugeSteps
+    .filter(
+      (step) =>
+        stats.refugePoints >= step.requiredFiches &&
+        step.image
+    )
+    .at(-1);
+
   const currentImage =
-    currentStep?.image ?? prairieStages[stage];
+    currentImageStep?.image ?? prairieStages[stage];
 
   const forestProgress = Math.min(
-    Math.round((stats.refugePoints / 150) * 100),
+    Math.round((stats.refugePoints / 250) * 100),
     100
   );
 
   const swampProgress = Math.min(
-    Math.round((stats.refugePoints / 300) * 100),
+    Math.round((stats.refugePoints / 440) * 100),
     100
   );
 
   const mountainProgress = Math.min(
-    Math.round((stats.refugePoints / 450) * 100),
+    Math.round((stats.refugePoints / 600) * 100),
     100
   );
 
   const beachProgress = Math.min(
-    Math.round((stats.refugePoints / 600) * 100),
+    Math.round((stats.refugePoints / 750) * 100),
     100
   );
 
@@ -71,24 +86,26 @@ export function RefugePage() {
     100
   );
 
-  const forestUnlocked = stats.refugePoints >= 150;
-  const swampUnlocked = stats.refugePoints >= 300;
-  const mountainUnlocked = stats.refugePoints >= 450;
-  const beachUnlocked = stats.refugePoints >= 600;
+  const forestUnlocked = stats.refugePoints >= 250;
+  const swampUnlocked = stats.refugePoints >= 440;
+  const mountainUnlocked = stats.refugePoints >= 600;
+  const beachUnlocked = stats.refugePoints >= 750;
   const oceanUnlocked = stats.refugePoints >= 900;
 
   const currentZone =
     stats.refugePoints >= 900
       ? "Océan"
-      : stats.refugePoints >= 600
+    : stats.refugePoints >= 750
       ? "Plage"
-      : stats.refugePoints >= 450
+    : stats.refugePoints >= 600
       ? "Montagne"
-      : stats.refugePoints >= 300
+    : stats.refugePoints >= 440
       ? "Marécage"
-      : stats.refugePoints >= 150
+    : stats.refugePoints >= 250
       ? "Forêt"
       : "Prairie";
+
+const grimoireUnlocked = stats.refugePoints >= 440;
 
   return (
     <div className="refuge-page refuge-page--fullscreen">
@@ -102,6 +119,16 @@ export function RefugePage() {
         <h1 className="refuge-hero__title">
           Refuge
         </h1>
+
+        {grimoireUnlocked && (
+  <button
+    type="button"
+    className="grimoire-button"
+    onClick={() => navigate("/refuge/grimoire/prairie")}
+  >
+    📖
+  </button>
+)}
 
         {currentStep && (
           <div className="refuge-story">
@@ -149,6 +176,14 @@ export function RefugePage() {
           >
             🗺 Île
           </button>
+
+          <button
+  type="button"
+  className="primary-button"
+  onClick={saveCloudRefuge}
+>
+  Sauvegarder mon refuge
+</button>
         </div>
       </div>
 
@@ -242,7 +277,7 @@ export function RefugePage() {
                 Prochain objectif :{" "}
                 {Math.max(
                   0,
-                  300 - stats.refugePoints
+                  440 - stats.refugePoints
                 )}{" "}
                 point(s) avant le Marécage 🐸
               </p>
@@ -273,6 +308,11 @@ export function RefugePage() {
                 type="button"
                 className="island-location"
                 disabled={!swampUnlocked}
+                onClick={() => {
+                  if (swampUnlocked) {
+                    navigate("/refuge/swamp");
+                  }
+                }}
               >
                 {swampUnlocked ? "🐸" : "🔒"} Marécage —{" "}
                 {swampProgress}%
@@ -282,6 +322,11 @@ export function RefugePage() {
                 type="button"
                 className="island-location"
                 disabled={!mountainUnlocked}
+                onClick={() => {
+                  if (mountainUnlocked) {
+                    navigate("/refuge/mountain");
+                  }
+                }}
               >
                 {mountainUnlocked ? "⛰" : "🔒"} Montagne —{" "}
                 {mountainProgress}%
@@ -291,19 +336,33 @@ export function RefugePage() {
                 type="button"
                 className="island-location"
                 disabled={!beachUnlocked}
+                onClick={() => {
+                  if (beachUnlocked) {
+                    navigate("/refuge/beach");
+                  }
+                }}
               >
                 {beachUnlocked ? "🏖" : "🔒"} Plage —{" "}
                 {beachProgress}%
               </button>
 
+
+
               <button
                 type="button"
                 className="island-location"
                 disabled={!oceanUnlocked}
+                onClick={() => {
+                  if (oceanUnlocked) {
+                    navigate("/refuge/ocean");
+                  }
+                }}
               >
                 {oceanUnlocked ? "🌊" : "🔒"} Océan —{" "}
                 {oceanProgress}%
               </button>
+
+              
             </>
           )}
         </div>

@@ -1,3 +1,5 @@
+import { saveCloudRoutineFavorites } from "./routineFavoritesCloud";
+
 const FAVORITES_KEY = "klero_routine_favorites";
 
 export function loadFavorites(): string[] {
@@ -24,6 +26,7 @@ export function toggleFavorite(circuitId: string) {
       ])
     );
   }
+  saveCloudRoutineFavorites(loadFavorites());
 }
 
 export function isFavorite(circuitId: string) {

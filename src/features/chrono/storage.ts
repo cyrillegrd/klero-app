@@ -1,3 +1,5 @@
+import { syncCloudRefuge } from "../refuge/refugeCloud";
+
 const CHRONO_STORAGE_KEY = "klero_chrono_entries";
 
 export type ChronoEntry = {
@@ -18,4 +20,6 @@ export function saveChronoEntry(entry: ChronoEntry) {
     CHRONO_STORAGE_KEY,
     JSON.stringify([entry, ...entries])
   );
+
+  syncCloudRefuge();
 }

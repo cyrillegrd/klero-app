@@ -1,12 +1,76 @@
+﻿import { saveCloudCommunicationFavorites } from "./communicationCloud";
+
 import { useState } from "react";
 import "./CommunicationPage.css";
 
-const quickWords = [
-  
-  { text: "Oui," },
+import {
+  Volume2,
+  Trash2,
+} from "lucide-react";
+
+
+
+type CommunicationWord = {
+  text: string;
+};
+
+type SentencePrediction = {
+  startsWith: string[];
+  suggestions: string[];
+};
+
+
+const quickWords: Record<string, CommunicationWord[]> = {
+  qui: [
+{ text: "je" },
+{text: "j'"},
+  { text: "tu" },
+  { text: "il" },
+  { text: "elle" },
+  { text: "on" },
+  { text: "iel" },
+  { text: "nous" },
+  { text: "vous" },
+  { text: "ils" },
+  { text: "elles" },
+  { text: "iels" },
+  ],
+
+  actions: [
+{ text: "suis" },
+    { text: "est" },
+    { text: "sommes" },
+    { text: "êtes" },
+    { text: "sont" },
+
+    { text: "ai" },
+    { text: "as" },
+    { text: "avons" },
+    { text: "avez" },
+    { text: "ont" },
+
+    { text: "veux" },
+    { text: "voulons" },
+    { text: "voulez" },
+    { text: "veulent" },
+
+    { text: "peux" },
+    { text: "pouvons" },
+    { text: "pouvez" },
+    { text: "peuvent" },
+
+    { text: "vais" },
+    { text: "vas" },
+    { text: "allons" },
+    { text: "allez" },
+    { text: "vont" },
+  ],
+
+  reponses: [
+ { text: "Oui," },
   { text: "Non" },
   { text: "Je ne sais pas" },
-  { text: "peut-être" },
+  { text: "Peut-être" },
    { text: "Je t'en prie" },
   { text: "J'ai quelque chose à dire" },
   { text: "Excuse-moi" },
@@ -17,7 +81,8 @@ const quickWords = [
   { text: "Merci" },
   { text: "Allez" },
   { text: "Génial" },
-];
+  ],
+};
 
 const baseCategories = {  
   besoins: [
@@ -65,6 +130,50 @@ const baseCategories = {
   { text: "ils" },
   { text: "elles" },
   { text: "iels" },
+  { text: "ça" },
+  { text: "lui" },
+  { text: "eux" },
+  { text: "y" },
+  { text: "en" },
+  { text: "le" },
+  { text: "mien.s" },
+  { text: "tien.s" },
+  { text: "mienne.s" },
+  { text: "tienne.s" },
+  { text: "sien.s" },
+  { text: "sienne.s" },
+  { text: "mon" },
+  { text: "ton" },
+  { text: "son" },
+  { text: "mes" },
+  { text: "tes" },
+  { text: "ses" },
+  { text: "vos" },
+  { text: "votre" },
+  { text: "nos" },
+  { text: "notre" },
+  { text: "leur.s" },
+  { text: "celui-ci" },
+  { text: "celui-là" },
+  { text: "celui" },
+  { text: "celle-ci" },
+  { text: "celle-là" },
+  { text: "celle" },
+  { text: "ceux-ci" },
+  { text: "ceux-là" },
+  { text: "ceux" },
+  { text: "ce" },
+  { text: "se" },
+  { text: "qui" },
+  { text: "que" },
+  { text: "quoi" },
+  { text: "dont" },
+  { text: "ou" },
+  { text: "lequel" },
+  { text: "laquelle" },
+  { text: "lesquel.les" },
+  { text: "auquel" },
+  { text: "duquel" },
   ],
 
   verbes: [
@@ -172,21 +281,20 @@ const baseCategories = {
 
   articles: [
     { text: "le" },
+  { text: "la" },
+  { text: "les" },
+  { text: "l'" },
+  { text: "de" },
+  { text: "d'" },
+  { text: "des" },
+  { text: "à" },
+  { text: "au" },
+  { text: "aux" },
+  { text: "du" },
   { text: "un" },
   { text: "une" },
-  { text: "ça" },
-  { text: "ce" },
-  { text: "la" },
-
-
-  { text: "sien.s" },
-  { text: "sienne.s" },
-  { text: "mon" },
-  { text: "ton" },
-  { text: "son" },
-  { text: "vos" },
-  { text: "votre.s" },
-  { text: "leur.s" },
+  { text: "de la" },
+  { text: "de l'"},
   ],
 
   prépositions: [
@@ -199,6 +307,8 @@ const baseCategories = {
   { text: "avant" },
   { text: "dans" },
   { text: "ici" },
+  { text: "chez"},
+  { text: "par"},
   ],
 
   directions: [
@@ -352,6 +462,133 @@ temps: [
   ],
 };
 
+
+const fallbackPredictions = [
+  "J'ai besoin de faire une pause.",
+  "Je veux boire.",
+  "Je veux manger.",
+  "Je suis fatigue.",
+  "Je ne comprends pas.",
+  "Quelque chose ne va pas.",
+];
+
+const sentencePredictions: SentencePrediction[] = [
+  {
+    startsWith: ["je veux", "j' veux"],
+    suggestions: [
+      "Je veux boire.",
+      "Je veux manger.",
+      "Je veux faire une pause.",
+    ],
+  },
+  {
+    startsWith: ["j'ai besoin de", "j'ai besoin d"],
+    suggestions: [
+      "J'ai besoin de calme.",
+      "J'ai besoin de mon casque.",
+      "J'ai besoin de te parler.",
+    ],
+  },
+  {
+    startsWith: ["j'ai mal"],
+    suggestions: [
+      "J'ai mal a la tete.",
+      "J'ai mal au ventre.",
+      "J'ai mal au dos.",
+    ],
+  },
+  {
+    startsWith: ["je suis"],
+    suggestions: [
+      "Je suis fatigue.",
+      "Je suis en surcharge.",
+      "Je suis inquiet.",
+    ],
+  },
+  {
+    startsWith: ["je ne veux pas"],
+    suggestions: [
+      "Je ne veux pas parler.",
+      "Je ne veux pas continuer.",
+      "Je ne veux pas etre touche.",
+    ],
+  },
+  {
+    startsWith: ["je ne peux pas"],
+    suggestions: [
+      "Je ne peux pas le faire maintenant.",
+      "Je ne peux pas expliquer.",
+      "Je ne peux pas continuer.",
+    ],
+  },
+  {
+    startsWith: ["peux", "je peux"],
+    suggestions: [
+      "Je peux le faire tout seul.",
+      "Je peux essayer.",
+      "Je peux attendre.",
+    ],
+  },
+  {
+    startsWith: ["pourquoi", "comment", "quand", "ou"],
+    suggestions: [
+      "Pourquoi tu dis ca ?",
+      "Comment je peux faire ?",
+      "Quand est-ce qu'on part ?",
+    ],
+  },
+  {
+    startsWith: ["non"],
+    suggestions: [
+      "Non merci.",
+      "Non, je ne veux pas.",
+      "Non, ce n'est pas ca.",
+    ],
+  },
+  {
+    startsWith: ["oui"],
+    suggestions: [
+      "Oui merci.",
+      "Oui, je veux bien.",
+      "Oui, c'est ca.",
+    ],
+  },
+];
+
+function normalizePredictionText(text: string) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[â€™']/g, "'")
+    .replace(/[^\p{L}\p{N}' ]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getSentencePredictions(sentence: string) {
+  const normalizedSentence = normalizePredictionText(sentence);
+
+  if (!normalizedSentence) {
+    return fallbackPredictions;
+  }
+
+  const matchedPredictions = sentencePredictions.find((prediction) =>
+    prediction.startsWith.some((start) =>
+      normalizedSentence.startsWith(normalizePredictionText(start))
+    )
+  );
+
+  if (matchedPredictions) {
+    return matchedPredictions.suggestions;
+  }
+
+  return fallbackPredictions
+    .filter((prediction) =>
+      normalizePredictionText(prediction).startsWith(normalizedSentence)
+    )
+    .slice(0, 3);
+}
 function speak(text: string) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "fr-FR";
@@ -359,6 +596,8 @@ function speak(text: string) {
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
+
+
 
 export function CommunicationPage() {
   const [sentence, setSentence] = useState("");
@@ -383,6 +622,28 @@ export function CommunicationPage() {
   const [selectedCategory, setSelectedCategory] =
     useState<keyof typeof categories>("besoins");
 
+    const [wordPage, setWordPage] = useState(0);
+
+const wordsPerPage = 12;
+
+const currentWords = categories[selectedCategory];
+
+const paginatedWords = currentWords.slice(
+  wordPage * wordsPerPage,
+  wordPage * wordsPerPage + wordsPerPage
+);
+
+const totalWordPages = Math.ceil(
+  currentWords.length / wordsPerPage
+);
+
+const predictedSentences = getSentencePredictions(sentence);
+
+function changeCategory(category: keyof typeof categories) {
+  setSelectedCategory(category);
+  setWordPage(0);
+}
+
   function addToSentence(text: string) {
     setSentence((previous) =>
       previous ? `${previous} ${text}` : text
@@ -401,22 +662,91 @@ export function CommunicationPage() {
 
   function saveFavorites(nextFavorites: { icon: string; text: string }[]) {
   setFavorites(nextFavorites);
+
   localStorage.setItem(
     "klero-communication-favorites",
     JSON.stringify(nextFavorites)
   );
+
+  saveCloudCommunicationFavorites(nextFavorites);
 }
 
-  return (
-    <div className="communication-page">
-      <header className="page-header">
+function isWord(
+  word: { text: string } | undefined
+): word is { text: string } {
+  return Boolean(word);
+}
+
+return (
+  <div className="communication-page">
+    <header className="communication-hero">
+      <div>
         <h1>💬 Communication</h1>
         <p>Construis une phrase et fais-la lire.</p>
-      </header>
+      </div>
+
+      <div className="communication-level">
+        <span>🔥</span>
+        <small>Niv 1</small>
+      </div>
+    </header>
+
+    <section className="communication-mission">
+      <strong>🎯 Mission du jour</strong>
+      <p>Dis ce que tu veux maintenant</p>
+    </section>
+
+    <section className="communication-panel">
+      <h2>Favoris rapides</h2>
+
+      <div className="communication-quickwords communication-quickwords--scroll">
+        {Object.entries(quickWords).map(([groupName, words]) => (
+          <div key={groupName} className="communication-word-group">
+            {words.filter(isWord).map((word, index) => (
+              <button
+                key={`${groupName}-${word.text}-${index}`}
+                type="button"
+                className="communication-word"
+                onClick={() => addToSentence(word.text)}
+              >
+                <strong>{word.text}</strong>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section className="communication-builder">
+      <h2>Construis ta phrase</h2>
 
       <div className="communication-sentence">
-        {sentence || "Choisis des mots..."}
+        {sentence || "Ta phrase apparaîtra ici..."}
       </div>
+
+      {predictedSentences.length > 0 && (
+        <div className="communication-predictions">
+          <span>Suggestions</span>
+
+          <div className="communication-prediction-list">
+            {predictedSentences.map((prediction) => (
+              <button
+                key={prediction}
+                type="button"
+                onClick={() => {
+                  setSentence(prediction);
+
+                  if (autoSpeak) {
+                    speak(prediction);
+                  }
+                }}
+              >
+                {prediction}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="communication-actions">
         <button
@@ -425,7 +755,8 @@ export function CommunicationPage() {
           disabled={!sentence}
           onClick={() => speak(sentence)}
         >
-          ▶ Lire
+          <Volume2 size={18} />
+          Lire
         </button>
 
         <button
@@ -443,100 +774,134 @@ export function CommunicationPage() {
           disabled={!sentence}
           onClick={() => setSentence("")}
         >
-          🗑 Effacer
+          <Trash2 size={18} />
+          Effacer
         </button>
       </div>
+    </section>
 
-      <div className="communication-favorite-form">
-  <input
-    value={customPhrase}
-    placeholder="Ajouter une phrase favorite..."
-    onChange={(event) => setCustomPhrase(event.target.value)}
-  />
-
-  <button
-    type="button"
-    className="primary-button"
-    onClick={() => {
-      if (!customPhrase.trim()) return;
-
-      saveFavorites([
-        ...favorites,
-        {
-          icon: "⭐",
-          text: customPhrase.trim(),
-        },
-      ]);
-
-      setCustomPhrase("");
-      setSelectedCategory("favoris");
-    }}
-  >
-    Ajouter
-  </button>
-</div>
-
-      <label className="communication-toggle">
-        <input
-          type="checkbox"
-          checked={autoSpeak}
-          onChange={(event) =>
-            setAutoSpeak(event.target.checked)
-          }
-        />
-        🔊 Lecture automatique
-      </label>
-
-      <div className="communication-quickwords communication-quickwords--scroll">
-        {quickWords.map((word) => (
-          <button
-            key={word.text}
-            type="button"
-            className="communication-word"
-            onClick={() => addToSentence(word.text)}
-          >
-            
-            <strong>{word.text}</strong>
-          </button>
-        ))}
-      </div>
+    <section className="communication-panel">
+      <h2>Catégories</h2>
 
       <div className="communication-categories">
         {Object.keys(categories).map((category) => (
           <button
-  key={category}
-  type="button"
-  className={
-    selectedCategory === category
-      ? `tab tab--active communication-category communication-category--${category}`
-      : `tab communication-category communication-category--${category}`
-  }
-  onClick={() =>
-    setSelectedCategory(
-      category as keyof typeof categories
-    )
-  }
->
-  {category.charAt(0).toUpperCase() + category.slice(1)}
-</button>
+            key={category}
+            type="button"
+            className={
+              selectedCategory === category
+                ? `tab tab--active communication-category communication-category--${category}`
+                : `tab communication-category communication-category--${category}`
+            }
+            onClick={() =>
+  changeCategory(
+    category as keyof typeof categories
+  )
+}
+          >
+            <span>
+  {category.charAt(0).toUpperCase() +
+    category.slice(1)}
+</span>
+          </button>
         ))}
       </div>
+    </section>
 
-
+    <section className="communication-panel">
+      <h2>Mots</h2>
 
       <div className="communication-grid">
-        {categories[selectedCategory].map((phrase) => (
+        {paginatedWords.map((phrase) => (
           <button
             key={phrase.text}
             type="button"
-            className="communication-card communication-tile"
+            className="communication-card"
             onClick={() => addToSentence(phrase.text)}
           >
-            
             <strong>{phrase.text}</strong>
           </button>
         ))}
       </div>
-    </div>
-  );
+
+      {totalWordPages > 1 && (
+  <div className="communication-pagination">
+    <button
+      type="button"
+      disabled={wordPage === 0}
+      onClick={() =>
+        setWordPage((page) =>
+          Math.max(page - 1, 0)
+        )
+      }
+    >
+      ←
+    </button>
+
+    <span>
+      {wordPage + 1} / {totalWordPages}
+    </span>
+
+    <button
+      type="button"
+      disabled={wordPage >= totalWordPages - 1}
+      onClick={() =>
+        setWordPage((page) =>
+          Math.min(page + 1, totalWordPages - 1)
+        )
+      }
+    >
+      →
+    </button>
+  </div>
+)}
+    </section>
+
+    <section className="communication-panel">
+      <h2>⭐ Mes favoris</h2>
+
+      <div className="communication-favorite-form">
+        <input
+          value={customPhrase}
+          placeholder="Ajouter une phrase favorite..."
+          onChange={(event) =>
+            setCustomPhrase(event.target.value)
+          }
+        />
+
+        <button
+          type="button"
+          className="primary-button"
+          onClick={() => {
+            if (!customPhrase.trim()) return;
+
+            saveFavorites([
+              ...favorites,
+              {
+                icon: "⭐",
+                text: customPhrase.trim(),
+              },
+            ]);
+
+            setCustomPhrase("");
+            setSelectedCategory("favoris");
+          }}
+        >
+          Ajouter
+        </button>
+      </div>
+    </section>
+
+    <label className="communication-toggle">
+      <input
+        type="checkbox"
+        checked={autoSpeak}
+        onChange={(event) =>
+          setAutoSpeak(event.target.checked)
+        }
+      />
+      🔊 Lecture automatique
+    </label>
+  </div>
+);
 }

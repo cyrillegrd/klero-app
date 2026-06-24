@@ -1,3 +1,5 @@
+import { saveCloudShoppingList } from "./shoppingListCloud";
+
 const SHOPPING_LIST_KEY = "klero_shopping_list";
 
 export type ShoppingItem = {
@@ -16,4 +18,6 @@ export function saveShoppingList(items: ShoppingItem[]) {
     SHOPPING_LIST_KEY,
     JSON.stringify(items)
   );
+
+  saveCloudShoppingList(items);
 }

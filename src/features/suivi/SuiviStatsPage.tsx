@@ -2,6 +2,7 @@ import { Card } from "../../components/ui/Card";
 import { SectionTitle } from "../../components/ui/SectionTitle";
 import { loadEntries } from "./storage";
 import { getSleepCorrelation } from "./correlations";
+import { loadSobrietyCheckIns } from "../sobriety/storage";
 
 import {
   ResponsiveContainer,
@@ -15,21 +16,73 @@ import {
 export function SuiviStatsPage() {
     const correlation = getSleepCorrelation();
   const entries = loadEntries();
+  const sobrietyEntries = loadSobrietyCheckIns();
+  const sobrietyByDate = new Map(
+    sobrietyEntries.map((entry) => [entry.date, entry])
+  );
 
   const chartData = [...entries]
     .reverse()
+    .map((entry) => {
+      const dateKey = entry.date.slice(0, 10);
+      const sobrietyEntry = sobrietyByDate.get(dateKey);
+
+      return {
+        date: new Date(entry.date).toLocaleDateString(
+          "fr-FR",
+          {
+            day: "2-digit",
+            month: "2-digit",
+          }
+        ),
+        humeur: entry.humeur,
+        energie: entry.energie,
+        concentration: entry.concentration,
+        difficulteSobriete: sobrietyEntry?.difficulty,
+        humeurSobriete: sobrietyEntry?.mood,
+        craquage: sobrietyEntry?.relapsed ? 10 : 0,
+      };
+    });
+
+  const matchedSobrietyDays = entries
     .map((entry) => ({
-      date: new Date(entry.date).toLocaleDateString(
-        "fr-FR",
-        {
-          day: "2-digit",
-          month: "2-digit",
-        }
-      ),
-      humeur: entry.humeur,
-      energie: entry.energie,
-      concentration: entry.concentration,
-    }));
+      daily: entry,
+      sobriety: sobrietyByDate.get(entry.date.slice(0, 10)),
+    }))
+    .filter(
+      (item): item is {
+        daily: (typeof entries)[number];
+        sobriety: NonNullable<ReturnType<typeof sobrietyByDate.get>>;
+      } => Boolean(item.sobriety)
+    );
+
+  const highDifficultyDays = matchedSobrietyDays.filter(
+    (item) => item.sobriety.difficulty >= 7
+  );
+
+  const relapseDays = matchedSobrietyDays.filter(
+    (item) => item.sobriety.relapsed
+  );
+
+  const averageDailyMoodOnHighDifficulty =
+    highDifficultyDays.length > 0
+      ? (
+          highDifficultyDays.reduce(
+            (sum, item) => sum + item.daily.humeur,
+            0
+          ) / highDifficultyDays.length
+        ).toFixed(1)
+      : null;
+
+  const averageEnergyOnHighDifficulty =
+    highDifficultyDays.length > 0
+      ? (
+          highDifficultyDays.reduce(
+            (sum, item) => sum + item.daily.energie,
+            0
+          ) / highDifficultyDays.length
+        ).toFixed(1)
+      : null;
 
   const humeurMoyenne =
     entries.length > 0
@@ -104,9 +157,57 @@ export function SuiviStatsPage() {
                 type="monotone"
                 dataKey="concentration"
               />
+
+              <Line
+                type="monotone"
+                dataKey="difficulteSobriete"
+              />
+
+              <Line
+                type="monotone"
+                dataKey="humeurSobriete"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </Card>
+
+      <Card>
+        <SectionTitle>Corrélations sobriété</SectionTitle>
+
+        {matchedSobrietyDays.length === 0 ? (
+          <p>
+            Remplis une fiche Suivi et une fiche Sobriété le même jour pour voir
+            des liens apparaître ici.
+          </p>
+        ) : (
+          <>
+            <p>
+              Analyse sur {matchedSobrietyDays.length} jour(s) avec données
+              croisées.
+            </p>
+
+            <p>
+              Jours avec forte difficulté : {highDifficultyDays.length}
+            </p>
+
+            {averageDailyMoodOnHighDifficulty && (
+              <p>
+                Humeur moyenne ces jours-là :{" "}
+                {averageDailyMoodOnHighDifficulty}
+              </p>
+            )}
+
+            {averageEnergyOnHighDifficulty && (
+              <p>
+                Énergie moyenne ces jours-là :{" "}
+                {averageEnergyOnHighDifficulty}
+              </p>
+            )}
+
+            <p>Jours avec craquage indiqué : {relapseDays.length}</p>
+          </>
+        )}
       </Card>
 
       {correlation && (

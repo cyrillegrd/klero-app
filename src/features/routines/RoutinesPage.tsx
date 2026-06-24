@@ -7,6 +7,7 @@ import {
   getPausedSession,
   saveRoutineSession,
 } from "./sessionStorage";
+import { loadFavorites } from "./favoritesStorage";
 
 import type { Circuit } from "./types";
 
@@ -34,11 +35,25 @@ export function RoutinesPage() {
     getPausedSession(circuit.id)
   );
 
+  const favoriteCircuitIds = loadFavorites();
+  const essentialCircuitIds = new Set([
+    "wake-up",
+    "before-sleep",
+    ...favoriteCircuitIds,
+  ]);
+
+  const essentialCircuits = circuits.filter((circuit) =>
+    essentialCircuitIds.has(circuit.id)
+  );
+
     const visibleCircuits = selectedEnergy
   ? circuits.filter(
       (circuit) =>
         circuit.energy === selectedEnergy &&
+        !essentialCircuitIds.has(circuit.id) &&
         ![
+          "wake-up",
+          "before-sleep",
           "muscle-release",
           "red-marker",
           "object-observation",
@@ -78,9 +93,13 @@ export function RoutinesPage() {
   function startCircuit(circuit: Circuit) {
     const paused = getPausedSession(circuit.id);
 
+    function createId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
     if (!paused) {
       saveRoutineSession({
-        id: crypto.randomUUID(),
+        id: createId(),
         circuitId: circuit.id,
         startedAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -174,15 +193,17 @@ if (emergencyMode) {
   return (
     <div className="suivi-page">
       <header className="page-header">
-        <h1>Routines</h1>
+        <div className="routine-header-row">
+          <h1>Routines</h1>
 
-        <button
-          type="button"
-          className="history-button"
-          onClick={() => navigate("/routines/history")}
-        >
-          📜 Historique
-        </button>
+          <button
+            type="button"
+            className="history-button"
+            onClick={() => navigate("/routines/history")}
+          >
+            📜 Historique
+          </button>
+        </div>
 
         <p>Choisis un circuit guidé.</p>
       </header>
@@ -198,6 +219,26 @@ if (emergencyMode) {
 
 
       )}
+
+      {essentialCircuits.length > 0 && (
+  <>
+    <h2 className="routine-section-title">
+      ⭐ Routines essentielles
+    </h2>
+
+    {essentialCircuits.map((circuit) => (
+      <button
+        key={circuit.id}
+        type="button"
+        className="suivi-category suivi-category--active"
+        onClick={() => startCircuit(circuit)}
+      >
+        <span>{circuit.title}</span>
+        <small>{getCircuitSubtitle(circuit)}</small>
+      </button>
+    ))}
+  </>
+)}
 
       {pausedCircuits.length > 0 && (
         <>
@@ -219,7 +260,14 @@ if (emergencyMode) {
         </>
       )}
 
+{!selectedEnergy && (
+        <div className="card routine-energy-question">
+          <p>Comment te sens-tu aujourd'hui ?</p>
+        </div>
+      )}
+
       <div className="energy-selector">
+        
         <button
           type="button"
           className={
@@ -243,7 +291,7 @@ if (emergencyMode) {
           onClick={() => setSelectedEnergy("medium")}
         >
           <span>🟨</span>
-          <span>Moyenne</span>
+          <span>Moyen</span>
         </button>
 
         <button
@@ -256,15 +304,11 @@ if (emergencyMode) {
           onClick={() => setSelectedEnergy("high")}
         >
           <span>🟩</span>
-          <span>Bonne</span>
+          <span>Bien</span>
         </button>
       </div>
 
-      {!selectedEnergy && (
-        <div className="card">
-          <p>Comment te sens-tu aujourd'hui ?</p>
-        </div>
-      )}
+      
 
       {tndCircuits.length > 0 && (
         <>

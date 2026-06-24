@@ -84,6 +84,10 @@ function getNextDate(date: string, recurrence: Recurrence, index: number) {
   return next.toISOString().slice(0, 10);
 }
 
+function toInputDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
 export function PlanPage() {
   const today = getToday();
 
@@ -202,7 +206,9 @@ export function PlanPage() {
     if (!title.trim()) return;
 
     const baseItem = {
-      id: crypto.randomUUID(),
+      id: `${Date.now()}-${Math.random()
+  .toString(36)
+  .slice(2)}`,
       title: title.trim(),
       type,
       date,
@@ -231,8 +237,9 @@ export function PlanPage() {
             ...baseItem,
             id:
               index === 0
-                ? baseItem.id
-                : crypto.randomUUID(),
+                ? baseItem.id: `${Date.now()}-${Math.random()
+  .toString(36)
+  .slice(2)}`,
             date: getNextDate(date, recurrence, index),
           }));
 
@@ -388,6 +395,77 @@ function moveDraggedItemToPriority(rank: number) {
   setDraggedItemId(null);
 }
 
+  function moveCurrentDate(direction: -1 | 1) {
+    const nextDate = new Date(currentDate);
+
+    if (view === "day") {
+      nextDate.setDate(nextDate.getDate() + direction);
+    }
+
+    if (view === "week") {
+      nextDate.setDate(nextDate.getDate() + direction * 7);
+    }
+
+    if (view === "month") {
+      nextDate.setMonth(nextDate.getMonth() + direction);
+      nextDate.setDate(1);
+    }
+
+    setCurrentDate(toInputDate(nextDate));
+  }
+
+  function openDay(dayDate: string) {
+    setCurrentDate(dayDate);
+    setSelectedDate(null);
+    setView("day");
+  }
+
+  function getDateNavLabel() {
+    const current = new Date(currentDate);
+
+    if (view === "week") {
+      const day = current.getDay();
+      const mondayOffset = day === 0 ? -6 : 1 - day;
+      const monday = new Date(current);
+      monday.setDate(current.getDate() + mondayOffset);
+
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      return `${monday.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "short",
+      })} - ${sunday.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "short",
+      })}`;
+    }
+
+    if (view === "month") {
+      return current.toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      });
+    }
+
+    return current.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+    });
+  }
+
+  function getMonthDays() {
+    const current = new Date(currentDate);
+    const year = current.getFullYear();
+    const month = current.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    return Array.from({ length: daysInMonth }, (_, index) =>
+      toInputDate(new Date(year, month, index + 1))
+    );
+  }
+
   return (
     <div className="plan-page">
       <header className="page-header">
@@ -398,39 +476,16 @@ function moveDraggedItemToPriority(rank: number) {
       <div className="plan-date-nav">
         <button
           type="button"
-          onClick={() => {
-            const previous = new Date(currentDate);
-            previous.setDate(
-              previous.getDate() - 1
-            );
-            setCurrentDate(
-              previous.toISOString().slice(0, 10)
-            );
-          }}
+          onClick={() => moveCurrentDate(-1)}
         >
           ←
         </button>
 
-        <strong>
-          {new Date(currentDate).toLocaleDateString(
-            "fr-FR",
-            {
-              weekday: "long",
-              day: "2-digit",
-              month: "long",
-            }
-          )}
-        </strong>
+        <strong>{getDateNavLabel()}</strong>
 
         <button
           type="button"
-          onClick={() => {
-            const next = new Date(currentDate);
-            next.setDate(next.getDate() + 1);
-            setCurrentDate(
-              next.toISOString().slice(0, 10)
-            );
-          }}
+          onClick={() => moveCurrentDate(1)}
         >
           →
         </button>
@@ -1025,6 +1080,14 @@ function moveDraggedItemToPriority(rank: number) {
               <div
                 key={day.date}
                 className="week-day-card"
+                role="button"
+                tabIndex={0}
+                onClick={() => openDay(day.date)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    openDay(day.date);
+                  }
+                }}
               >
                 <strong>{day.label}</strong>
 
@@ -1052,9 +1115,10 @@ function moveDraggedItemToPriority(rank: number) {
                         ? "week-item week-item--done"
                         : "week-item"
                     }
-                    onClick={() =>
+                    onClick={(event) => {
+                      event.stopPropagation();
                       toggleItem(item.id)
-                    }
+                    }}
                   >
                     <PlanIcon type={item.type} />
 
@@ -1077,13 +1141,8 @@ function moveDraggedItemToPriority(rank: number) {
       {view === "month" && (
         <>
           <div className="month-view">
-            {Array.from({ length: 31 }, (_, index) => {
-              const dayNumber = index + 1;
-
-              const monthDate = `${currentDate.slice(
-                0,
-                8
-              )}${String(dayNumber).padStart(2, "0")}`;
+            {getMonthDays().map((monthDate) => {
+              const dayNumber = new Date(monthDate).getDate();
 
               const dayItems = items.filter(
                 (item) => item.date === monthDate
@@ -1093,9 +1152,7 @@ function moveDraggedItemToPriority(rank: number) {
                 <div
                   key={monthDate}
                   className="month-day"
-                  onClick={() =>
-                    setSelectedDate(monthDate)
-                  }
+                  onClick={() => openDay(monthDate)}
                 >
                   <div className="month-day-number">
                     {dayNumber}

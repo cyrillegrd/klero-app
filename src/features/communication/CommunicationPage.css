@@ -1,148 +1,461 @@
-.communication-quickwords,
-.communication-grid {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
+﻿.communication-page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px clamp(14px, 4vw, 28px) 120px;
+  box-sizing: border-box;
+
+  display: grid;
+  gap: clamp(14px, 3vw, 22px);
+
+  overflow-x: hidden;
 }
 
-.communication-word,
-.communication-card {
-  appearance: none !important;
-
-  min-height: 44px !important;
-  padding: 10px 14px !important;
-
-  border: 0 !important;
-  border-radius: 12px !important;
-
-  background: #ffffff !important;
-  color: #111827 !important;
-
-  box-shadow:
-    inset 0 -1px 0 rgba(0, 0, 0, 0.16),
-    0 2px 6px rgba(0, 0, 0, 0.14) !important;
-
-  font-size: 0.95rem !important;
-  font-weight: 800 !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+.communication-page * {
+  box-sizing: border-box;
 }
 
-.communication-word strong,
-.communication-card strong {
-  font-size: 0.95rem !important;
-  font-weight: 800 !important;
+.communication-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.communication-word:active,
-.communication-card:active {
-  transform: translateY(1px);
+.communication-hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  line-height: 1;
+}
+
+.communication-hero p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+}
+
+.communication-level {
+  flex: 0 0 auto;
+  width: clamp(58px, 16vw, 78px);
+  height: clamp(58px, 16vw, 78px);
+  border-radius: 999px;
+  background: var(--primary-light);
+
+  display: grid;
+  place-items: center;
+
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.communication-level small {
+  font-size: 0.7rem;
+}
+
+.communication-mission,
+.communication-builder,
+.communication-panel {
+  width: 100%;
+  min-width: 0;
+
+  padding: clamp(14px, 4vw, 22px);
+  border-radius: clamp(22px, 6vw, 32px);
+
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--page-border, rgba(255, 255, 255, 0.8));
+  box-shadow: 0 18px 44px var(--page-shadow, rgba(31, 41, 55, 0.08));
+}
+
+.communication-mission {
+  background: linear-gradient(135deg, var(--primary-light), #ffffff);
+}
+
+.communication-mission p {
+  margin: 8px 0 0;
+  font-weight: 900;
+  font-size: clamp(1rem, 4vw, 1.25rem);
+}
+
+.communication-builder h2,
+.communication-panel h2 {
+  margin: 0 0 14px;
+  font-size: clamp(1rem, 4vw, 1.15rem);
+}
+
+.communication-sentence {
+  width: 100%;
+  min-height: clamp(72px, 18vw, 110px);
+
+  padding: clamp(14px, 4vw, 20px);
+  border-radius: 20px;
+
+  background: var(--page-tint, #f8fafc);
+  box-shadow: inset 0 0 0 1px var(--page-border, #e5e7eb);
+
+  font-weight: 900;
+  font-size: clamp(1rem, 4vw, 1.25rem);
+
+  display: flex;
+  align-items: center;
+
+  overflow-wrap: anywhere;
+}
+
+.communication-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.communication-actions button {
+  min-width: 0;
+  min-height: 52px;
+
+  border: 0;
+  border-radius: 18px;
+
+  font-weight: 900;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+@media (max-width: 360px) {
+  .communication-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 .communication-quickwords--scroll {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  overflow-x: auto !important;
-  gap: 8px !important;
-  padding: 8px 2px 12px !important;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  display: flex;
+  gap: 10px;
+
+  padding: 4px 2px 10px;
+  scroll-snap-type: x proximity;
 }
 
-.communication-quickwords--scroll .communication-word {
-  flex: 0 0 auto !important;
-  white-space: nowrap !important;
+.communication-word-group {
+  display: flex;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.communication-word {
+  flex: 0 0 auto;
+
+  min-width: clamp(74px, 22vw, 120px);
+  min-height: 48px;
+
+  padding: 10px 14px;
+
+  border: 0;
+  border-radius: 16px;
+
+  background: white;
+  box-shadow: 0 8px 18px var(--page-shadow, rgba(31, 41, 55, 0.1));
+
+  font-weight: 900;
+  white-space: nowrap;
+
+  scroll-snap-align: start;
+}
+
+.communication-categories {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 520px) {
+  .communication-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .communication-category {
-  color: #111827 !important;
+  width: 100%;
+  min-width: 100px;
+  min-height: 40px;
+
+  border: 0;
+  border-radius: 20px;
+
+  padding: 8px 10px;
+
+  font-weight: 900;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  text-align: center;
+}
+
+.communication-category span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .communication-category--besoins {
-  background: #dbeafe !important;
-}
-
-.communication-category--commencer {
-  background: #ede9fe !important;
+  background: #eaf5ff;
 }
 
 .communication-category--pronoms {
-  background: #fce7f3 !important;
-}
-
-.communication-category--verbes {
-  background: #dcfce7 !important;
+  background: #fce7f3;
 }
 
 .communication-category--noms {
-  background: #fef3c7 !important;
+  background: #fef3c7;
+}
+
+.communication-category--commencer {
+  background: #e0e7ff;
+}
+
+.communication-category--verbes {
+  background: #dcfce7;
 }
 
 .communication-category--adjectifs {
-  background: #ffedd5 !important;
+  background: #ffedd5;
 }
 
 .communication-category--articles {
-  background: #e0f2fe !important;
+  background: #dbeafe;
 }
 
 .communication-category--prépositions {
-  background: #fae8ff !important;
+  background: #fae8ff;
 }
 
 .communication-category--directions {
-  background: #ccfbf1 !important;
+  background: #ccfbf1;
 }
 
 .communication-category--conjonctions {
-  background: #f3e8ff !important;
+  background: #dbeafe;
 }
 
 .communication-category--temps {
-  background: #e5e7eb !important;
+  background: #e5e7eb;
 }
 
 .communication-category--questions {
-  background: #cffafe !important;
+  background: #cffafe;
 }
 
 .communication-category--douleur {
-  background: #fee2e2 !important;
+  background: #fee2e2;
 }
 
 .communication-category--social {
-  background: #dcfce7 !important;
+  background: #dcfce7;
 }
 
 .communication-category--vitesse {
-  background: #e0e7ff !important;
+  background: #e0e7ff;
 }
 
 .communication-category--positions {
-  background: #fef9c3 !important;
+  background: #fef9c3;
 }
 
 .communication-category--taille {
-  background: #f5d0fe !important;
+  background: #f5d0fe;
 }
 
 .communication-category--utiles {
-  background: #d1fae5 !important;
+  background: #d1fae5;
 }
 
 .communication-category--urgence {
-  background: #fecaca !important;
+  background: #fecaca;
 }
 
 .communication-category--phrases {
-  background: #ddd6fe !important;
+  background: #dbeafe;
 }
 
 .communication-category--favoris {
-  background: #fef08a !important;
+  background: #fef08a;
 }
 
 .communication-category.tab--active {
-  outline: 3px solid #7c5cff !important;
-  color: #111827 !important;
+  background: var(--primary) !important;
+  color: white !important;
+
+  outline: none;
+  box-shadow:
+    0 8px 24px var(--page-shadow, rgba(79, 159, 232, 0.35));
 }
+
+.communication-grid {
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 430px) {
+  .communication-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 680px) {
+  .communication-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.communication-card {
+  width: 100%;
+  min-width: 0;
+  min-height: clamp(72px, 18vw, 104px);
+
+  padding: 12px;
+
+  border: 0;
+  border-radius: 22px;
+
+  background: white;
+  box-shadow: 0 10px 24px var(--page-shadow, rgba(31, 41, 55, 0.1));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  text-align: center;
+}
+
+.communication-card strong {
+  font-size: clamp(0.85rem, 3.4vw, 1rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.communication-card-icon {
+  color: var(--primary);
+}
+
+.communication-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  margin-top: 16px;
+}
+
+.communication-pagination button {
+  width: 44px;
+  height: 44px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: white;
+  box-shadow: 0 8px 18px var(--page-shadow, rgba(31, 41, 55, 0.1));
+
+  font-weight: 900;
+}
+
+.communication-pagination button:disabled {
+  opacity: 0.35;
+}
+
+.communication-pagination span {
+  font-weight: 900;
+}
+
+.communication-favorite-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+@media (max-width: 380px) {
+  .communication-favorite-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.communication-favorite-form input {
+  width: 100%;
+  min-width: 0;
+
+  padding: 16px;
+
+  border: 0;
+  border-radius: 18px;
+
+  background: var(--page-tint, #f8fafc);
+  box-shadow: inset 0 0 0 1px var(--page-border, #bfdbfe);
+
+  font-size: 1rem;
+}
+
+.communication-toggle {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 800;
+}
+.communication-predictions {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.communication-predictions span {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.communication-prediction-list {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 560px) {
+  .communication-prediction-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.communication-prediction-list button {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+
+  border: 0;
+  border-radius: 18px;
+
+  background: var(--primary-light);
+  color: var(--primary);
+  box-shadow: 0 8px 18px var(--page-shadow, rgba(79, 159, 232, 0.14));
+
+  font-weight: 900;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+

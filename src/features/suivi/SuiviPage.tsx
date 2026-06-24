@@ -7,6 +7,7 @@ import { SectionTitle } from "../../components/ui/SectionTitle";
 import { suiviCategories } from "./suiviConfig";
 import { loadSuiviSettings } from "./settingsStorage";
 import { saveEntry } from "./storage";
+import { createId } from "../../shared/createId.ts";
 
 export function SuiviPage() {
   const navigate = useNavigate();
@@ -69,31 +70,33 @@ export function SuiviPage() {
         <h1>Suivi</h1>
         <p>Remplis seulement ce qui est utile aujourd'hui.</p>
 
-        <button
-          type="button"
-          className="primary-button"
-          onClick={() => navigate("/suivi/parametres")}
-        >
-          ⚙️ Paramètres du suivi
-        </button>
+        <div className="suivi-header-actions">
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => navigate("/suivi/parametres")}
+          >
+            ⚙️
+          </button>
 
-        <button
-  type="button"
-  className="secondary-button"
-  onClick={() => navigate("/suivi/historique")}
->
-  📚 Historique
-</button>
+          <button
+            type="button"
+            className="history-button"
+            onClick={() => navigate("/suivi/historique")}
+          >
+            📜
+          </button>
 
-<button
-  type="button"
-  className="secondary-button"
-  onClick={() =>
-    navigate("/suivi/statistiques")
-  }
->
-  📈 Statistiques
-</button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() =>
+              navigate("/suivi/statistiques")
+            }
+          >
+            📈
+          </button>
+        </div>
       </header>
 
       <Card>
@@ -147,7 +150,7 @@ export function SuiviPage() {
             className="primary-button"
             onClick={() => {
               saveEntry({
-                id: crypto.randomUUID(),
+                id: createId(),
                 date: new Date().toISOString(),
                 humeur,
                 energie,

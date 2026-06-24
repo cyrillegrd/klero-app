@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SOBRIETY_KEY = "klero_sobriety_start_date";
 
@@ -19,6 +20,8 @@ function getToday() {
 }
 
 export function SobrietyCard() {
+  const navigate = useNavigate();
+
   const [startDate, setStartDate] = useState<string | null>(() =>
     localStorage.getItem(SOBRIETY_KEY)
   );
@@ -41,16 +44,27 @@ export function SobrietyCard() {
             {new Date(startDate).toLocaleDateString("fr-FR")}
           </p>
 
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => {
-              localStorage.setItem(SOBRIETY_KEY, getToday());
-              setStartDate(getToday());
-            }}
-          >
-            Recommencer le compteur
-          </button>
+          <div className="sobriety-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => {
+                localStorage.setItem(SOBRIETY_KEY, getToday());
+                setStartDate(getToday());
+              }}
+            >
+              Recommencer le compteur
+            </button>
+
+            <button
+              type="button"
+              className="sobriety-arrow-button"
+              onClick={() => navigate("/sobriete")}
+              aria-label="Ouvrir la page sobriété"
+            >
+              →
+            </button>
+          </div>
         </>
       ) : (
         <>
@@ -58,16 +72,27 @@ export function SobrietyCard() {
             Un compteur personnel pour suivre une période sans comportement que tu veux éviter.
           </p>
 
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => {
-              localStorage.setItem(SOBRIETY_KEY, getToday());
-              setStartDate(getToday());
-            }}
-          >
-            Démarrer aujourd’hui
-          </button>
+          <div className="sobriety-actions">
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => {
+                localStorage.setItem(SOBRIETY_KEY, getToday());
+                setStartDate(getToday());
+              }}
+            >
+              Démarrer aujourd’hui
+            </button>
+
+            <button
+              type="button"
+              className="sobriety-arrow-button"
+              onClick={() => navigate("/sobriete")}
+              aria-label="Ouvrir la page sobriété"
+            >
+              →
+            </button>
+          </div>
         </>
       )}
     </section>

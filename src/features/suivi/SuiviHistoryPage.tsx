@@ -4,6 +4,7 @@ import { Card } from "../../components/ui/Card";
 import { SectionTitle } from "../../components/ui/SectionTitle";
 import { loadEntries, deleteEntry } from "./storage";
 import { useNavigate } from "react-router-dom";
+import { loadSobrietyCheckIns } from "../sobriety/storage";
 
 import {
   LineChart,
@@ -16,6 +17,7 @@ import {
 
 export function SuiviHistoryPage() {
   const [entries, setEntries] = useState(loadEntries());
+  const sobrietyEntries = loadSobrietyCheckIns();
   const chartData = [...entries]
   .reverse()
   .map((entry) => ({
@@ -61,6 +63,34 @@ export function SuiviHistoryPage() {
           <p>Aucune fiche enregistrée.</p>
         </Card>
       )}
+
+      <Card>
+        <SectionTitle>Fiches sobriété</SectionTitle>
+
+        {sobrietyEntries.length === 0 ? (
+          <p>Aucune fiche de sobriété enregistrée.</p>
+        ) : (
+          <div className="sobriety-history-list">
+            {sobrietyEntries.map((entry) => (
+              <article key={entry.date} className="sobriety-history-entry">
+                <strong>
+                  {new Date(entry.date).toLocaleDateString("fr-FR")}
+                </strong>
+
+                <p>Difficulté : {entry.difficulty}/10</p>
+                <p>Humeur sobriété : {entry.mood}/10</p>
+                <p>{entry.relapsed ? "Craquage indiqué" : "Pas de craquage indiqué"}</p>
+
+                {entry.triggers && (
+                  <p>
+                    <span>Déclencheurs :</span> {entry.triggers}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </Card>
 
       {entries.map((entry) => (
         <Card key={entry.id}>

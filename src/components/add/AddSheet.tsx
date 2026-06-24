@@ -12,28 +12,16 @@ const addOptions = [
     path: "/suivi",
   },
   {
-    icon: "✅",
-    title: "Tâche",
-    description: "Ajouter une action au plan",
-    path: "/plan",
-  },
-  {
     icon: "📅",
-    title: "Rendez-vous",
-    description: "Prévoir un moment important",
+    title: "Évènement Plan",
+    description: "Ajouter une tâche, routine ou rendez-vous",
     path: "/plan",
-  },
-  {
-    icon: "🔄",
-    title: "Routine",
-    description: "Créer une suite guidée",
-    path: "/routines",
   },
   {
     icon: "📝",
     title: "Note",
     description: "Garder une idée ou un contexte",
-    path: "/plan",
+    path: "/notes",
   },
 ];
 

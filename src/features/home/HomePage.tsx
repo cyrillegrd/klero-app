@@ -6,21 +6,31 @@ import { useNavigate } from "react-router-dom";
 import { TodayAgendaCard } from "./TodayAgendaCard";
 import { DailyGoalCard } from "./DailyGoalCard";
 import { SobrietyCard } from "./SobrietyCard";
+import { NotesCard } from "./NotesCard";
+
+import { Navigate } from "react-router-dom";
 
 export function HomePage() {
   const navigate = useNavigate();
 
+const onboardingDone =
+  localStorage.getItem("klero_onboarding_done") === "true";
+
+if (!onboardingDone) {
+  return <Navigate to="/onboarding" replace />;
+}
+
+
   const shoppingItems = loadShoppingList().filter(
-  (item) => !item.checked
-);
+    (item) => !item.checked
+  );
 
 
   return (
     <div className="home-page">
       <Header />
 
-<BrontoCard />
-
+      <BrontoCard />
 
       <TodayAgendaCard />
 
@@ -29,39 +39,41 @@ export function HomePage() {
       <SobrietyCard />
 
       <button
-  type="button"
-  className="card home-communication-card"
-  onClick={() => navigate("/communication")}
->
-  <span>💬</span>
+        type="button"
+        className="card home-communication-card"
+        onClick={() => navigate("/communication")}
+      >
+        <span>💬</span>
 
-  <div>
-    <h2>Communication rapide</h2>
-    <p>Construire une phrase ou parler en un clic.</p>
-  </div>
-</button>
+        <div>
+          <h2>Communication rapide</h2>
+          <p>Construire une phrase ou parler en un clic.</p>
+        </div>
+      </button>
 
       {shoppingItems.length > 0 && (
-  <div className="card">
-    <h2>🛒 Liste de courses</h2>
+        <div className="card">
+          <h2>🛒 Liste de courses</h2>
 
-    <p>
-      {shoppingItems.length} élément(s) à acheter
-    </p>
+          <p>
+            {shoppingItems.length} élément(s) à acheter
+          </p>
 
-    {shoppingItems.slice(0, 5).map((item) => (
-      <p key={item.id}>• {item.label}</p>
-    ))}
+          {shoppingItems.slice(0, 5).map((item) => (
+            <p key={item.id}>• {item.label}</p>
+          ))}
 
-    <button
-  type="button"
-  className="secondary-button"
-  onClick={() => navigate("/shopping-list")}
->
-  Modifier la liste
-</button>
-  </div>
-)}
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => navigate("/shopping-list")}
+          >
+            Modifier la liste
+          </button>
+        </div>
+      )}
+
+      <NotesCard />
     </div>
   );
 }

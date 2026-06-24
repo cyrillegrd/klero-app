@@ -1,3 +1,7 @@
+import { createId } from "../../shared/createId";
+
+import { syncCloudRefuge } from "../refuge/refugeCloud";
+
 const CATEGORY_STORAGE_KEY = "klero_category_entries";
 
 export type CategoryEntry = {
@@ -19,6 +23,7 @@ export function saveCategoryEntry(entry: CategoryEntry) {
     CATEGORY_STORAGE_KEY,
     JSON.stringify([entry, ...entries])
   );
+  syncCloudRefuge();
 }
 
 export function getLatestCategoryEntry(categoryId: string) {
@@ -51,7 +56,7 @@ export function upsertCategoryEntry(
     };
   } else {
     entries.unshift({
-      id: crypto.randomUUID(),
+      id: createId(),
       categoryId,
       values,
       date: new Date().toISOString(),
@@ -62,4 +67,5 @@ export function upsertCategoryEntry(
   CATEGORY_STORAGE_KEY,
   JSON.stringify(entries)
 );
+syncCloudRefuge();
 }

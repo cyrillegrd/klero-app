@@ -1,17 +1,69 @@
+import { useEffect, useState } from "react";
+
 import kleoBreathing from "../../assets/bronto/kleo_breathing.png";
 import kleoHappy from "../../assets/bronto/bronto_happy.png";
 import kleoCalm from "../../assets/bronto/bronto_calm.png";
-
-import { useEffect, useState } from "react";
-
+import kleoThinking from "../../assets/bronto/bronto_thinking.png";
+import kleoWave from "../../assets/bronto/bronto_wave.png";
 
 const timers = [
+  {
+    id: "breathing-movement-music",
+    title: "Respiration + mouvement + musique",
+    icon: "🎵",
+    duration: 900,
+    label: "Un circuit doux de 10 à 15 minutes.",
+    image: kleoBreathing,
+    stages: [
+      {
+        title: "Atelier 1 : Ancrage",
+        duration: "2 min",
+        durationSeconds: 120,
+        items: [
+          "Assis sur un coussin, ballon ou chaise.",
+          "Ecoute d'une musique calme sans paroles.",
+          "Respirer tranquillement en posant les mains sur le ventre.",
+        ],
+      },
+      {
+        title: "Atelier 2 : Respiration guidée",
+        duration: "3 min",
+        durationSeconds: 180,
+        items: [
+          "Musique avec rythme lent, environ 60 battements/minute.",
+          "Inspirer pendant 4 ou 5 temps.",
+          "Expirer pendant 5 ou 6 temps.",
+          "Utiliser un support visuel : bulle, sablier ou carte de respiration.",
+        ],
+      },
+      {
+        title: "Atelier 3 : Mouvement régulateur",
+        duration: "3 min",
+        durationSeconds: 180,
+        items: [
+          "Marche lente sur un parcours.",
+          "Pas synchronisés avec la respiration.",
+          "Possibilité d'ajouter des dalles sensorielles ou un parcours moteur simple.",
+        ],
+      },
+      {
+        title: "Atelier 4 : Retour au calme",
+        duration: "2 à 5 min",
+        items: [
+          "Coin cocon, pouf ou couverture lestée si approprié.",
+          "Musique douce ou sons de nature.",
+          "Observation d'un objet lumineux calme : bouteille sensorielle ou projecteur d'étoiles.",
+        ],
+      },
+    ],
+  },
   {
     id: "breathing",
     title: "Respiration guidée",
     icon: "🫁",
     duration: 60,
-    label: "Inspire... expire...",
+    label: "Prêt ? Clique sur démarrer.",
+    image: kleoBreathing,
   },
   {
     id: "calm",
@@ -19,6 +71,7 @@ const timers = [
     icon: "😌",
     duration: 180,
     label: "On ralentit doucement.",
+    image: kleoCalm,
   },
   {
     id: "energy",
@@ -26,6 +79,7 @@ const timers = [
     icon: "⚡",
     duration: 120,
     label: "Une petite relance.",
+    image: kleoWave,
   },
   {
     id: "focus",
@@ -33,8 +87,11 @@ const timers = [
     icon: "🎯",
     duration: 300,
     label: "Une seule tâche.",
+    image: kleoThinking,
   },
 ];
+
+const BREATH_SECONDS = 4;
 
 export function ChronoPage() {
   const [selectedTimer, setSelectedTimer] =
@@ -43,29 +100,17 @@ export function ChronoPage() {
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [endsAt, setEndsAt] = useState<number | null>(null);
 
-  const [breathPhase, setBreathPhase] =
-  useState<"inspire" | "expire">("inspire");
-
-const [breathCount, setBreathCount] = useState(4);
-
-  useEffect(() => {
-  if (!running || selectedTimer?.id !== "breathing") return;
-
-  const interval = window.setInterval(() => {
-    setBreathCount((count) => {
-      if (count > 1) return count - 1;
-
-      setBreathPhase((phase) =>
-        phase === "inspire" ? "expire" : "inspire"
-      );
-
-      return 4;
-    });
-  }, 1000);
-
-  return () => window.clearInterval(interval);
-}, [running, selectedTimer]);
+  const [finishAudio] = useState(
+    () => new Audio("/sounds/success.mp3")
+  );
+  const [bpmAudio] = useState(() => {
+    const audio = new Audio("/sounds/60bpm.mp3");
+    audio.loop = true;
+    audio.volume = 0.32;
+    return audio;
+  });
 
   useEffect(() => {
     if (!selectedTimer) return;
@@ -73,80 +118,172 @@ const [breathCount, setBreathCount] = useState(4);
     setRemaining(selectedTimer.duration);
     setRunning(false);
     setFinished(false);
+    setEndsAt(null);
   }, [selectedTimer]);
 
   useEffect(() => {
-    if (!running || remaining <= 0) return;
+    if (!running || endsAt === null) return;
+
+    const targetEndsAt = endsAt;
+
+    function syncRemaining() {
+      const nextRemaining =
+        Math.max(Math.ceil((targetEndsAt - Date.now()) / 1000), 0);
+
+      setRemaining(nextRemaining);
+    }
+
+    syncRemaining();
 
     const interval = window.setInterval(() => {
-      setRemaining((previous) =>
-        Math.max(previous - 1, 0)
-      );
-    }, 1000);
+      syncRemaining();
+    }, 250);
 
     return () => window.clearInterval(interval);
-  }, [running, remaining]);
+  }, [running, endsAt]);
 
   useEffect(() => {
-    if (running && remaining === 0) {
-      setRunning(false);
-      setFinished(true);
+    if (!selectedTimer || !running || finished || remaining !== 0) return;
 
-      const audio = new Audio("/sounds/success.mp3");
-      audio.volume = 0.35;
-      audio.play().catch(() => {});
+    setRunning(false);
+    setEndsAt(null);
+    setFinished(true);
+    bpmAudio.pause();
+    bpmAudio.currentTime = 0;
+
+    finishAudio.currentTime = 0;
+    finishAudio.play().catch(() => {});
+    navigator.vibrate?.([200, 100, 200]);
+  }, [selectedTimer, finished, remaining, finishAudio, bpmAudio]);
+
+  useEffect(() => {
+    return () => {
+      bpmAudio.pause();
+      bpmAudio.currentTime = 0;
+    };
+  }, [bpmAudio]);
+
+  function unlockAudio() {
+    finishAudio.volume = 0.35;
+
+    finishAudio
+      .play()
+      .then(() => {
+        finishAudio.pause();
+        finishAudio.currentTime = 0;
+      })
+      .catch(() => {});
+  }
+
+  function startOrPause() {
+    if (!selectedTimer) return;
+
+    unlockAudio();
+
+    if (running) {
+      if (endsAt !== null) {
+        setRemaining(
+          Math.max(Math.ceil((endsAt - Date.now()) / 1000), 0)
+        );
+      }
+
+      setRunning(false);
+      setEndsAt(null);
+      bpmAudio.pause();
+      return;
     }
-  }, [running, remaining]);
+
+    const nextRemaining =
+      remaining === 0 ? selectedTimer.duration : remaining;
+
+    setRemaining(nextRemaining);
+    setFinished(false);
+    setEndsAt(Date.now() + nextRemaining * 1000);
+    setRunning(true);
+
+    if (selectedTimer.id === "breathing-movement-music") {
+      bpmAudio.currentTime = 0;
+      bpmAudio.play().catch(() => {});
+    }
+  }
+
+  function resetTimer() {
+    if (!selectedTimer) return;
+
+    setRunning(false);
+    setRemaining(selectedTimer.duration);
+    setFinished(false);
+    setEndsAt(null);
+    bpmAudio.pause();
+    bpmAudio.currentTime = 0;
+  }
 
   if (selectedTimer) {
+    const isBreathing =
+      selectedTimer.id === "breathing";
+
     const progress =
-      selectedTimer.duration === 0
-        ? 0
-        : selectedTimer.duration - remaining;
+      selectedTimer.duration - remaining;
+
+    const breathStep =
+      progress % (BREATH_SECONDS * 2);
+
+    const breathPhase =
+      breathStep < BREATH_SECONDS ? "inspire" : "expire";
+
+    const breathCount =
+      BREATH_SECONDS - (breathStep % BREATH_SECONDS);
+
+    const orbClass =
+      isBreathing && running
+        ? breathPhase === "inspire"
+          ? "breathing-orb breathing-orb--in"
+          : "breathing-orb breathing-orb--out"
+        : "breathing-orb breathing-orb--static";
+
+    const currentImage =
+      finished
+        ? kleoHappy
+        : isBreathing && running && breathPhase === "expire"
+          ? kleoCalm
+          : selectedTimer.image;
+
+    const text =
+      isBreathing
+        ? running
+          ? breathPhase === "inspire"
+            ? `Inspire ${breathCount}`
+            : `Expire ${breathCount}`
+          : selectedTimer.label
+        : selectedTimer.label;
 
     return (
       <div className="chrono-page">
         <button
           type="button"
           className="secondary-button"
-          onClick={() => setSelectedTimer(null)}
+          onClick={() => {
+            bpmAudio.pause();
+            bpmAudio.currentTime = 0;
+            setSelectedTimer(null);
+          }}
         >
           ← Retour
         </button>
 
         <h1>{selectedTimer.title}</h1>
 
-        <div
-  className={
-    selectedTimer.id === "breathing" && running
-      ? breathPhase === "inspire"
-        ? "breathing-orb breathing-orb--in"
-        : "breathing-orb breathing-orb--out"
-      : running
-      ? "breathing-orb breathing-orb--running"
-      : "breathing-orb"
-  }
->
-  <img
-  src={
-    finished
-      ? kleoHappy
-      : breathPhase === "inspire"
-      ? kleoBreathing
-      : kleoCalm
-  }
-  alt="Kléo"
-  className="kleo_breathing"
-/>
-</div>
+        <div className={orbClass}>
+          <img
+            src={currentImage}
+            alt="Kléo"
+            className="kleo_breathing"
+          />
+        </div>
 
         <p className="breathing-text">
-  {selectedTimer.id === "breathing"
-    ? breathPhase === "inspire"
-      ? `Inspire ${breathCount}`
-      : `Expire ${breathCount}`
-    : selectedTimer.label}
-</p>
+          {text}
+        </p>
 
         <strong className="chrono-time">
           {Math.floor(remaining / 60)}:
@@ -158,18 +295,32 @@ const [breathCount, setBreathCount] = useState(4);
           max={selectedTimer.duration}
         />
 
+        {"stages" in selectedTimer && selectedTimer.stages && (
+          <section className="chrono-circuit-card">
+            <h2>Déroulé du circuit</h2>
+
+            {selectedTimer.stages.map((stage) => (
+              <article key={stage.title} className="chrono-circuit-step">
+                <div>
+                  <strong>{stage.title}</strong>
+                  <span>{stage.duration}</span>
+                </div>
+
+                <ul>
+                  {stage.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </section>
+        )}
+
         <div className="routine-player__actions">
           <button
             type="button"
             className="primary-button"
-            onClick={() => {
-              if (remaining === 0) {
-                setRemaining(selectedTimer.duration);
-                setFinished(false);
-              }
-
-              setRunning((value) => !value);
-            }}
+            onClick={startOrPause}
           >
             {running ? "Pause" : "Démarrer"}
           </button>
@@ -177,11 +328,7 @@ const [breathCount, setBreathCount] = useState(4);
           <button
             type="button"
             className="secondary-button"
-            onClick={() => {
-              setRunning(false);
-              setRemaining(selectedTimer.duration);
-              setFinished(false);
-            }}
+            onClick={resetTimer}
           >
             Réinitialiser
           </button>
@@ -201,9 +348,7 @@ const [breathCount, setBreathCount] = useState(4);
               <button
                 type="button"
                 className="primary-button"
-                onClick={() => {
-                  setSelectedTimer(null);
-                }}
+                onClick={() => setSelectedTimer(null)}
               >
                 Retour aux chronos
               </button>
@@ -232,6 +377,7 @@ const [breathCount, setBreathCount] = useState(4);
             <span>
               {timer.icon} {timer.title}
             </span>
+
             <small>
               ⏱ {Math.round(timer.duration / 60)} min
             </small>

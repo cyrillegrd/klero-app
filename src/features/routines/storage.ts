@@ -1,3 +1,5 @@
+import { syncCloudRefuge } from "../refuge/refugeCloud";
+
 const ROUTINE_STORAGE_KEY = "klero_routine_entries";
 
 export type RoutineEntry = {
@@ -18,4 +20,6 @@ export function saveRoutineEntry(entry: RoutineEntry) {
     ROUTINE_STORAGE_KEY,
     JSON.stringify([entry, ...entries])
   );
+
+  syncCloudRefuge();
 }

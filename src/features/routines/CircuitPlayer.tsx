@@ -12,12 +12,20 @@ import {
 } from "./shoppingListStorage";
 import { saveRoutineEntry } from "./storage";
 
+function createId() {
+  return `${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
+}
+
 type CircuitPlayerProps = {
   circuit: Circuit;
   initialSession?: RoutineSession;
   onExit: () => void;
   onComplete: () => void;
 };
+
+
 
 export function CircuitPlayer({
   circuit,
@@ -27,7 +35,7 @@ export function CircuitPlayer({
 }: CircuitPlayerProps) {
   const [session, setSession] = useState<RoutineSession>(
     initialSession ?? {
-      id: crypto.randomUUID(),
+      id: createId(),
       circuitId: circuit.id,
       startedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -151,7 +159,7 @@ export function CircuitPlayer({
       });
 
 saveRoutineEntry({
-  id: crypto.randomUUID(),
+  id: createId(),
   date: new Date().toISOString(),
   routineId: circuit.id,
 });
@@ -200,11 +208,11 @@ return;
 
     const nextItems = [
       ...shoppingItems,
-      {
-        id: crypto.randomUUID(),
-        label: shoppingInput.trim(),
-        checked: false,
-      },
+        {
+  id: createId(),
+  label: shoppingInput.trim(),
+  checked: false,
+}
     ];
 
     setShoppingItems(nextItems);

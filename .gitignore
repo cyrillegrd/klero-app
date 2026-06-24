@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+public/sounds/2.mp3
+public/sounds/3.mp3
+public/sounds/4.mp3

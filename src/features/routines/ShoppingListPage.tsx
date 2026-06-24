@@ -5,6 +5,8 @@ import {
   saveShoppingList,
 } from "./shoppingListStorage";
 
+import { createId } from "../../shared/createId";
+
 export function ShoppingListPage() {
   const [items, setItems] = useState(loadShoppingList());
   const [input, setInput] = useState("");
@@ -23,7 +25,7 @@ export function ShoppingListPage() {
     updateItems([
       ...items,
       {
-        id: crypto.randomUUID(),
+        id: createId(),
         label: input.trim(),
         checked: false,
       },
@@ -51,11 +53,13 @@ export function ShoppingListPage() {
   }
 
   return (
+    
     <div className="suivi-page">
       <header className="page-header">
         <h1>🛒 Liste de courses</h1>
         {items.length > 0 && (
             <button
+            
                 type="button"
                 className="primary-button"
                 onClick={clearShoppingList}

@@ -3,6 +3,7 @@ import { loadCategoryEntries } from "../suivi/categoryStorage";
 import { loadRoutineEntries } from "../routines/storage";
 import { loadChronoEntries } from "../chrono/storage";
 
+
 export function getRefugeStats() {
   const entries = loadEntries();
   const categoryEntries = loadCategoryEntries();

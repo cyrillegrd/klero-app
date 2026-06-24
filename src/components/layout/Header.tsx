@@ -1,6 +1,9 @@
 import logoKlero from "../../assets/logos/logo_klero.png";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
+  const navigate = useNavigate();
+
   return (
     <header className="header">
       <img
@@ -9,15 +12,14 @@ export function Header() {
         className="header__logo"
       />
 
-      <div>
-        <h1 className="header__title">
-          Bonjour 👋
-        </h1>
-
-        <p className="header__subtitle">
-          Kléo est avec toi aujourd'hui.
-        </p>
-      </div>
+      <button
+        type="button"
+        className="header__profile"
+        onClick={() => navigate("/profil")}
+        aria-label="Ouvrir le profil"
+      >
+        👤
+      </button>
     </header>
   );
 }

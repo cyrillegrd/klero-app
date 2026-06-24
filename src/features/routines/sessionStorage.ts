@@ -1,3 +1,7 @@
+import { saveCloudRoutineSession } from "./routineSessionCloud";
+
+import { syncCloudRefuge } from "../refuge/refugeCloud";
+
 const ROUTINE_SESSION_KEY = "klero_routine_sessions";
 
 export type RoutineSession = {
@@ -31,11 +35,18 @@ export function saveRoutineSession(session: RoutineSession) {
     sessions.unshift(session);
   }
 
-  localStorage.setItem(
+    localStorage.setItem(
     ROUTINE_SESSION_KEY,
     JSON.stringify(sessions)
   );
+  
+  saveCloudRoutineSession(session);
+
+    if (session.status === "completed") {
+    syncCloudRefuge();
+  }
 }
+
 export function getPausedSession(circuitId: string) {
   const sessions = loadRoutineSessions();
 

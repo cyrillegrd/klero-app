@@ -1,5 +1,7 @@
 import type { DailyEntry } from "./types";
 
+import { syncCloudRefuge } from "../refuge/refugeCloud";
+
 const STORAGE_KEY = "klero_daily_entries";
 
 export function loadEntries(): DailyEntry[] {
@@ -24,6 +26,7 @@ export function saveEntry(
       ...entries,
     ])
   );
+  syncCloudRefuge();
 }
 
 export function deleteEntry(id: string) {
@@ -37,4 +40,5 @@ export function deleteEntry(id: string) {
       )
     )
   );
+  syncCloudRefuge();
 }

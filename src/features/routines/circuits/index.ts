@@ -33,6 +33,8 @@ import { tolerateUncertainty } from "./tnd/tolerateUncertainty";
 import { thanksBrain } from "./tnd/thanksBrain";
 import { urgeWave } from "./tnd/urgeWave";
 import { stopRumination } from "./tnd/stopRumination";
+import { wakeUp } from "./daily/wakeUp";
+import { beforeSleep } from "./daily/beforeSleep";
 
 export const circuits = [
   returnToCalm,
@@ -73,4 +75,7 @@ muscleRelease,
   urgeWave,
 
   stopRumination,
+
+  wakeUp,
+  beforeSleep,
 ];
