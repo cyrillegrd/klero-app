@@ -1,0 +1,15 @@
+workflows:
+  ios-workflow:
+    name: Klero iOS
+
+    environment:
+      xcode: latest
+      node: latest
+
+    scripts:
+      - npm install
+      - npm run build
+      - npx cap sync ios
+
+    artifacts:
+      - ios/build/**/*.ipa
