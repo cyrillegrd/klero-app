@@ -5,11 +5,16 @@ workflows:
     environment:
       xcode: latest
       node: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.cyrilleguillard.klero
 
     scripts:
       - npm install
       - npm run build
       - npx cap sync ios
+      - xcode-project use-profiles
+      - xcode-project build-ipa --workspace ios/App/App.xcworkspace --scheme App
 
     artifacts:
-      - ios/build/**/*.ipa
+      - build/ios/ipa/*.ipa
