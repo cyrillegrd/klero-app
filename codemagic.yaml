@@ -2,9 +2,6 @@ workflows:
   ios-workflow:
     name: Klero iOS
 
-    integrations:
-      app_store_connect: Developer Portal
-
     environment:
       xcode: latest
       node: latest
@@ -21,7 +18,3 @@ workflows:
 
     artifacts:
       - build/ios/ipa/*.ipa
-
-    publishing:
-      app_store_connect:
-        auth: integration
